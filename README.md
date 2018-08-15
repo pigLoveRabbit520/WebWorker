@@ -19,9 +19,6 @@ WebWorker
 * 集成了workerman-statistics项目，可以监控服务情况
 * 支持中间件
 
-框架由来
-========
-大家经常说php性能差，其实主要是在php-fpm或mod_php方式下的差，而php语言本身是不错的，尤其在未来加入JIT之后，性能会越来越好的。面对新兴的语言和开发方式，个人认为php应该抛弃php-fpm或mod_php的开发方式了，以主流的守护进程的方式来开发，这样的方式性能会比php-fpm或mod_php有几十倍左右的提升.
 
 测试对比
 ========
@@ -173,8 +170,3 @@ Worker::$stdoutFile = './stdout.log';
 // Run worker
 Worker::runAll();
 ```
-
-
-技术交流QQ群
-========
-517297682
