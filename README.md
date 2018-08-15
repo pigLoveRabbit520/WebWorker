@@ -3,8 +3,6 @@ WebWorker
 
 基于Workerman实现的自带http server的web开发框架，用于开发高性能的api应用，例如app接口服务端等。 
 
-详细文档见 http://doc.webworker.xtgxiso.com/ 
-问答互动见 http://ask.webworker.xtgxiso.com/ .
 
 特性
 ========
@@ -19,21 +17,11 @@ WebWorker
 * 集成了workerman-statistics项目，可以监控服务情况
 * 支持中间件
 
-
-测试对比
-========
-https://github.com/xtgxiso/WebWorker-benchmark
-
-项目示例
-========
-https://github.com/xtgxiso/WebWorker-example
-
-
 安装
 ========
 
 ```
-composer require xtgxiso/webworker
+composer require salamander/webworker
 ```
 
 快速开始
