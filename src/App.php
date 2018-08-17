@@ -33,10 +33,6 @@ class App extends Worker
     public  $autoload = array();
     public  $on404 ="";
 
-    public $onAppStart = NULL;
-
-    public $onAppReload = NULL;
-
     public $statistic_server = false;
 
     public $max_request = 10000;
@@ -296,8 +292,6 @@ EOD;
     public function run()
     {
         $this->reusePort = true;
-        $this->onWorkerStart = $this->onAppStart;
-        $this->onWorkerReload = $this->onAppReload;
         $this->onMessage = array($this, 'onClientMessage');
         parent::run();
     }
