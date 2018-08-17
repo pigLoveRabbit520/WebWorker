@@ -35,6 +35,8 @@ class App extends Worker
 
     public $onAppStart = NULL;
 
+    public $onAppReload = NULL;
+
     public $statistic_server = false;
 
     public $max_request = 10000;
@@ -295,6 +297,7 @@ EOD;
     {
         $this->reusePort = true;
         $this->onWorkerStart = $this->onAppStart;
+        $this->onWorkerReload = $this->onAppReload;
         $this->onMessage = array($this, 'onClientMessage');
         parent::run();
     }
