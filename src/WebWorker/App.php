@@ -759,8 +759,8 @@ class App extends Worker
             Worker::stopAll();
         }
         if(!@$_SESSION['isExport']) {
-            if (file_exists(APP_ROOT . '/cache/tmp')) {
-                mkdir(APP_ROOT . '/cache/tmp');
+            if (!file_exists(APP_ROOT . '/cache/tmp')) {
+                mkdir(APP_ROOT . '/cache/tmp', 0774, true);
             }
             file_put_contents(APP_ROOT."/cache/tmp/WorkerId-{$this->id}.log", $this->access_log['url'] . PHP_EOL,FILE_APPEND);
             echo "WorkerId: {$this->id};  已经处理请求数:{$request_count}".PHP_EOL;
