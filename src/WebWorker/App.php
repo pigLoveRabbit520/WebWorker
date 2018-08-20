@@ -638,8 +638,7 @@ class App extends Worker
 
     public $max_request = 10000;
 
-    public function __construct($socket_name, $context_option = array(), $container)
-    {
+    public function __construct($socket_name, $context_option = array(), $container) {
         parent::__construct($socket_name, $context_option);
 
         if (is_array($container)) {
@@ -679,7 +678,7 @@ class App extends Worker
         }
     }
 
-    private function auto_close($conn){
+    private function auto_close($conn) {
         if ( strtolower($_SERVER["SERVER_PROTOCOL"]) == "http/1.1" ){
             if ( isset($_SERVER["HTTP_CONNECTION"]) ){
                 if ( strtolower($_SERVER["HTTP_CONNECTION"]) == "close" ){
@@ -715,17 +714,8 @@ class App extends Worker
         $this->access_log[5] = "NULL";
         $this->access_log[6] = 200;
         $this->access_log[7] = microtime_float();
-        if ( empty($this->map) ){
-            $str = <<<'EOD'
-<div style="margin: 200px auto;width:600px;height:800px;text-align:left;">基于<a href="http://www.workerman.net/" target="_blank">Workerman</a>实现的自带http server的web开发框架.没有添加路由，请添加路由!
-<pre>$app->HandleFunc("/",function($conn,$data) use($app){
-    $conn->send("默认页");
-});</pre>
-</div>
-EOD;
-            $connection->send($str);
-            return;
-        }
+
+
         if ( $this->statistic_server ){
             require_once __DIR__ . '/Libs/StatisticClient.php';
             $statistic_address = $this->statistic_server;
