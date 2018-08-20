@@ -721,7 +721,7 @@ class App extends Worker
             $statistic_address = $this->statistic_server;
         }
         $this->conn = $connection;
-        // slim runner
+        ///////////////////////////////  slim runner
         $response = $this->container->get('response');
 
         try {
@@ -749,6 +749,7 @@ class App extends Worker
         $response = $this->finalize($response);
 
         $this->respond($response, $connection);
+        /////////////////////////////// slim runner end
 
         // 已经处理请求数
         static $request_count = 0;
@@ -757,7 +758,10 @@ class App extends Worker
             echo "WorkerId: {$this->id};  Reboot !!!".PHP_EOL;
             Worker::stopAll();
         }
-        if(!@$_SESSION['isExport']){
+        if(!@$_SESSION['isExport']) {
+            if (is_dir(APP_ROOT . '/cache/tmp')) {
+                mkdir(APP_ROOT . '/cache/tmp');
+            }
             file_put_contents(APP_ROOT."/cache/tmp/WorkerId-{$this->id}.log", $this->access_log['url'] . PHP_EOL,FILE_APPEND);
             echo "WorkerId: {$this->id};  已经处理请求数:{$request_count}".PHP_EOL;
         }
