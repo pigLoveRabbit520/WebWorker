@@ -354,7 +354,7 @@ class App extends Worker
         // See https://github.com/slimphp/Slim/issues/1730
 
         // Status
-        header(sprintf(
+        Http::header(sprintf(
             'HTTP/%s %s %s',
             $response->getProtocolVersion(),
             $response->getStatusCode(),
