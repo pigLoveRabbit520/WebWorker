@@ -750,7 +750,7 @@ class App extends Worker
 
         $this->respond($response, $connection);
         /////////////////////////////// slim runner end
-
+        $this->access_log['url'] = $_SERVER['REQUEST_URI'];
         // 已经处理请求数
         static $request_count = 0;
         // 如果请求数达到1000
