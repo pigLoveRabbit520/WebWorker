@@ -759,7 +759,7 @@ class App extends Worker
             Worker::stopAll();
         }
         if(!@$_SESSION['isExport']) {
-            if (is_dir(APP_ROOT . '/cache/tmp')) {
+            if (file_exists(APP_ROOT . '/cache/tmp')) {
                 mkdir(APP_ROOT . '/cache/tmp');
             }
             file_put_contents(APP_ROOT."/cache/tmp/WorkerId-{$this->id}.log", $this->access_log['url'] . PHP_EOL,FILE_APPEND);
