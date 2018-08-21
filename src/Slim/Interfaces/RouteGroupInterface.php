@@ -8,7 +8,6 @@
  */
 namespace Slim\Interfaces;
 
-use Slim\App;
 
 /**
  * RouteGroup Interface
@@ -40,7 +39,7 @@ interface RouteGroupInterface
      * This method invokes the route group object's callable, collecting
      * nested route objects
      *
-     * @param App $app
+     * @param $app
      */
-    public function __invoke(App $app);
+    public function __invoke($app);
 }
