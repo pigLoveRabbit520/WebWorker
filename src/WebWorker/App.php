@@ -77,7 +77,7 @@ class App extends Worker
      */
     public function add($callable)
     {
-        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
+        return $this->addMiddleware(new \Slim\DeferredCallable($callable, $this->container));
     }
 
     /**
