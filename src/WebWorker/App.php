@@ -253,6 +253,7 @@ class App extends Worker
      */
     public function group($pattern, $callable)
     {
+        $pattern = strtolower($pattern);
         /** @var RouteGroup $group */
         $group = $this->container->get('router')->pushGroup($pattern, $callable);
         $group->setContainer($this->container);
@@ -691,9 +692,9 @@ class App extends Worker
                 $conn->close();
             }
         }
-        $this->access_log[7] = round(microtime_float() - $this->access_log[7],4);
+
         if(!@$_SESSION['isExport']){
-            echo implode(" - ",$this->access_log)."\n";
+
         }
     }
 
@@ -755,11 +756,12 @@ class App extends Worker
             echo "WorkerId: {$this->id};  Reboot !!!".PHP_EOL;
             Worker::stopAll();
         }
+        $this->access_log[7] = round(microtime_float() - $this->access_log[7],4);
         if(!@$_SESSION['isExport']) {
             if (!file_exists(APP_ROOT . '/cache/tmp')) {
                 mkdir(APP_ROOT . '/cache/tmp', 0774, true);
             }
-            file_put_contents(APP_ROOT."/cache/tmp/WorkerId-{$this->id}.log", $this->access_log['url'] . PHP_EOL,FILE_APPEND);
+            echo implode(" - ",$this->access_log)."\n";
             echo "WorkerId: {$this->id};  已经处理请求数:{$request_count}".PHP_EOL;
         }
     }
@@ -828,7 +830,7 @@ class App extends Worker
         Http::header($str);
     }
 
-    public function end($msg){
+    public function end($msg=''){
         if (PHP_SAPI != 'cli') {
             exit($msg);
         }
