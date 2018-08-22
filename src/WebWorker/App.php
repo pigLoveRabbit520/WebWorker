@@ -23,10 +23,9 @@ use Slim\Http\Request;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use WebWorker\Exception\JumpExitException;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
-use Workerman\Autoloader;
-use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Protocols\Http;
 use Workerman\Protocols\HttpCache;
 use WebWorker\Libs\StatisticClient;
@@ -209,7 +208,7 @@ class App extends Worker
         if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this->container);
         }
-
+        $pattern = strtolower($pattern);
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
             $route->setContainer($this->container);
@@ -830,7 +829,13 @@ class App extends Worker
     }
 
     public function end($msg){
-        Http::end($msg);
+        if (PHP_SAPI != 'cli') {
+            exit($msg);
+        }
+        if ($msg) {
+            echo $msg;
+        }
+        throw new JumpExitException('jump_exit');
     }
 
     public function Setcookie($name,$value = '',$maxage = 0,$path = '',$domain = '',$secure = false,$HTTPOnly = false){
