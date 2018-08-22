@@ -725,12 +725,10 @@ class App extends Worker
         $response = $this->container->get('response');
 
         try {
-            ob_start();
             $response = $this->process($this->container->get('request'), $response);
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
         } finally {
-            $output = ob_get_clean();
         }
 
         if (!empty($output) && $response->getBody()->isWritable()) {
@@ -796,7 +794,7 @@ class App extends Worker
         if(!@$_SESSION['isExport']){
             dump("返回数据",$data);
         }
-        $this->end("true");
+        $this->end();
     }
 
     public function ServerHtmlJson($data){
