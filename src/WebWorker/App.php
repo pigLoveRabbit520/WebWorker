@@ -698,6 +698,10 @@ class App extends Worker
         }
     }
 
+    public function setRequestEndCallback(\Closure $func) {
+        $this->requestEndCallback = $func;
+    }
+
 
     public function onClientMessage($connection, $data) {
         if($_SERVER['REQUEST_METHOD'] == 'HEAD') {
@@ -747,6 +751,7 @@ class App extends Worker
         $response = $this->finalize($response);
 
         $this->respond($response, $connection);
+        call_user_func_array($this->requestEndCallback, [$response, $connection]);
         /////////////////////////////// slim runner end
         $this->access_log['url'] = $_SERVER['REQUEST_URI'];
         // 已经处理请求数
