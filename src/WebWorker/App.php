@@ -751,13 +751,15 @@ class App extends Worker
         $response = $this->finalize($response);
 
         $this->respond($response, $connection);
-        call_user_func_array($this->requestEndCallback, [$response, $connection]);
+        if ($this->container->offsetExists('requestEndCallback')) {
+            call_user_func_array($this->container->get('requestEndCallback'), [$response, $connection]);
+        }
         /////////////////////////////// slim runner end
         $this->access_log['url'] = $_SERVER['REQUEST_URI'];
         // 已经处理请求数
         static $request_count = 0;
         // 如果请求数达到1000
-        if( ++$request_count >= $this->max_request && $this->max_request > 0 ){
+        if( ++$request_count >= $this->max_request && $this->max_request > 0 ) {
             echo "WorkerId: {$this->id};  Reboot !!!".PHP_EOL;
             Worker::stopAll();
         }
@@ -775,31 +777,9 @@ class App extends Worker
      * 程序输出并结束
      * @param $data
      */
-    public function  ServerJson($data){
+    public function  ServerJson($data) {
         Http::header("Content-type: application/json");
         $this->conn->send(json_encode($data));
-        if(is_array($data)){
-            $log_data['action'] = $_SERVER['REQUEST_URI'];     //动作
-            $log_data['body'] = $GLOBALS['HTTP_RAW_POST_DATA'];    //提交参数
-            $log_data['header'] = json_encode($_SERVER);    //报头
-            $log_data['package'] = isset($_SESSION['package'])?$_SESSION['package']:'';    //包名
-            $log_data['poortime'] = round(microtime_float() - $this->access_log[7],4);    //
-            $log_data['referer'] = isset($_SESSION['referer'])?$_SESSION['referer']:'';    //来源
-            $log_data['return_data'] = json_encode($data,320);    //
-            $log_data['sql'] = isset($_SESSION['dumpList'])?json_encode($_SESSION['dumpList'],320):"";    // 打印出来的数据
-            $log_data['token'] = isset($_SESSION['token'])? md5($_SESSION['token']) : ""; // 用户标示
-            $log_data['uid'] = @$_SESSION['uid']>0 ? $_SESSION['uid']:"-1";            //用户uid
-            $log_data['channel']= isset($_SESSION['channel'])?$_SESSION['channel']:"";      //渠道 iOS 为空
-            $log_data['versioncode'] = isset($_SESSION['versioncode'])?$_SESSION['versioncode']:'';    //版本号
-            #$log_data['input'] = $_GET['input'];    //加密参数
-            $get_log_datas = $this->logSave->getData($log_data);  //获取数据
-            $topic = "newSayu".CACHEIOSVER;         //__topic__
-            $source = getuser_realip(); //来源 ip
-            $this->logSave->save($topic,$source,$get_log_datas);   //写入日志
-        }
-        if(!@$_SESSION['isExport']){
-            dump("返回数据",$data);
-        }
         $this->end();
     }
 
