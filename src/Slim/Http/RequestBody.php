@@ -16,10 +16,17 @@ class RequestBody extends Body
     /**
      * Create a new RequestBody.
      */
-    public function __construct()
+    public function __construct($bodyRawString = NULL)
     {
         $stream = fopen('php://temp', 'w+');
-        stream_copy_to_stream(fopen('php://input', 'r'), $stream);
+        if ($bodyRawString) {
+            $streamInput = fopen('php://memory','r+');
+            fwrite($streamInput, $bodyRawString);
+            rewind($streamInput);
+            stream_copy_to_stream($streamInput, $stream);
+        } else {
+            stream_copy_to_stream(fopen('php://input', 'r'), $stream);
+        }
         rewind($stream);
 
         parent::__construct($stream);

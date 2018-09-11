@@ -135,14 +135,14 @@ class Request extends Message implements ServerRequestInterface
      *
      * @return static
      */
-    public static function createFromEnvironment(Environment $environment)
+    public static function createFromEnvironment(Environment $environment, $bodyRawString = NULL)
     {
         $method = $environment['REQUEST_METHOD'];
         $uri = Uri::createFromEnvironment($environment);
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new RequestBody();
+        $body = new RequestBody($bodyRawString);
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
