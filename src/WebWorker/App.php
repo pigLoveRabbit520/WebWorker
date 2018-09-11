@@ -649,7 +649,7 @@ class App extends Worker
         }
         // 定义factory service
         $container['request'] = $container->factory(function () {
-            return Request::createFromEnvironment(new Environment($_SERVER));
+            return Request::createFromEnvironment(new Environment($_SERVER), $GLOBALS['HTTP_RAW_POST_DATA']);
         });
         $container['response'] = $container->factory(function ($container) {
             $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
