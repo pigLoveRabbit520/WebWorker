@@ -752,7 +752,9 @@ class App extends Worker
 
         $this->respond($response, $connection);
         if ($this->container->offsetExists('requestEndCallback')) {
-            call_user_func_array($this->container->get('requestEndCallback'), [$response, $connection]);
+            $callback = $this->container->get('requestEndCallback');
+            $callback = $callback->bindTo($this);
+            $callback($response, $connection);
         }
         /////////////////////////////// slim runner end
         $this->access_log['url'] = $_SERVER['REQUEST_URI'];
@@ -771,6 +773,10 @@ class App extends Worker
             echo implode(" - ",$this->access_log)."\n";
             echo "WorkerId: {$this->id};  已经处理请求数:{$request_count}".PHP_EOL;
         }
+    }
+
+    public function getAccessLog() {
+        return $this->access_log;
     }
 
     public function aliyunLog($data) {
