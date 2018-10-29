@@ -709,27 +709,17 @@ class App extends Worker
             $connection->close("Success");
             return;
         }
-        $this->access_log = [];
-        $this->access_log[0] = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER["REMOTE_ADDR"];
-        $this->access_log[1] = date("Y-m-d H:i:s");
-        $this->access_log[2] = $_SERVER['REQUEST_METHOD'];
-        $this->access_log[3] = $_SERVER['REQUEST_URI'];
-        $this->access_log[4] = $_SERVER['SERVER_PROTOCOL'];
-        $this->access_log[5] = "NULL";
-        $this->access_log[6] = 200;
-        $this->access_log[7] = microtime_float();
-
-
         if ( $this->statistic_server ){
             require_once __DIR__ . '/Libs/StatisticClient.php';
             $statistic_address = $this->statistic_server;
         }
         $this->conn = $connection;
-        ///////////////////////////////  slim runner
+        ///////////////////////////////  slim runner ///////////////////////////////
         $response = $this->container->get('response');
+        $request = $this->container->get('request');
 
         try {
-            $response = $this->process($this->container->get('request'), $response);
+            $response = $this->process($request, $response);
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
         } finally {
@@ -754,10 +744,9 @@ class App extends Worker
         if ($this->container->offsetExists('requestEndCallback')) {
             $callback = $this->container->get('requestEndCallback');
             $callback = $callback->bindTo($this);
-            $callback($response, $connection);
+            $callback($request, $response, $connection);
         }
         /////////////////////////////// slim runner end
-        $this->access_log['url'] = $_SERVER['REQUEST_URI'];
         // 已经处理请求数
         static $request_count = 0;
         // 如果请求数达到1000
@@ -765,7 +754,6 @@ class App extends Worker
             echo "WorkerId: {$this->id};  Reboot !!!".PHP_EOL;
             Worker::stopAll();
         }
-        $this->access_log[7] = round(microtime_float() - $this->access_log[7],4);
         if(!@$_SESSION['isExport']) {
             if (!file_exists(APP_ROOT . '/cache/tmp')) {
                 mkdir(APP_ROOT . '/cache/tmp', 0774, true);
