@@ -629,7 +629,7 @@ class App extends Worker
 
     private $conn = false;
     private $map = array();
-    private $access_log = array();
+    private $access_log = [];
 
     public  $autoload = array();
     public  $on404 ="";
@@ -658,24 +658,6 @@ class App extends Worker
             return $response->withProtocolVersion($container->get('settings')['httpVersion']);
         });
         $this->container = $container;
-    }
-
-
-    private function show_404($connection){
-        if ( $this->on404 ){
-            $callback = \Closure::bind($this->on404, $this, get_class());
-            call_user_func($callback);
-        }else{
-            Http::header("HTTP/1.1 404 Not Found");
-            $html = '<html>
-                <head><title>404 Not Found</title></head>
-                <body bgcolor="white">
-                <center><h1>404 Not Found</h1></center>
-                <hr><center>Workerman</center>
-                </body>
-                </html>';
-            $connection->send($html);
-        }
     }
 
     private function auto_close($conn) {
@@ -746,7 +728,7 @@ class App extends Worker
             $callback = $callback->bindTo($this);
             $callback($request, $response, $connection);
         }
-        /////////////////////////////// slim runner end
+        /////////////////////////////// slim runner end ///////////////////////////////
         // 已经处理请求数
         static $request_count = 0;
         // 如果请求数达到1000
@@ -767,61 +749,25 @@ class App extends Worker
         return $this->access_log;
     }
 
-    public function aliyunLog($data) {
-        if(is_string($data) && is_array(json_decode($data,true))) {
-            $data = json_decode($data,true);
-        }
-        if(is_array($data)) {
-            $log_data['action'] = $_SERVER['REQUEST_URI'];     //动作
-            $log_data['body'] = $GLOBALS['HTTP_RAW_POST_DATA'];    //提交参数
-            $log_data['header'] = json_encode($_SERVER);    //报头
-            $log_data['package'] = isset($_SESSION['package'])?$_SESSION['package']:'';    //包名
-            $log_data['poortime'] = round(microtime_float() - $this->access_log[7],4);    //
-            $log_data['referer'] = isset($_SESSION['referer'])?$_SESSION['referer']:'';    //来源
-            $log_data['return_data'] = json_encode($data,320);    //
-            $log_data['sql'] = isset($_SESSION['dumpList'])?json_encode($_SESSION['dumpList'],320):"";    // 打印出来的数据
-            $log_data['token'] = isset($_SESSION['token'])? md5($_SESSION['token']) : ""; // 用户标示
-            $log_data['uid'] = @$_SESSION['uid']>0 ? $_SESSION['uid']:"-1";            //用户uid
-            $log_data['channel']= isset($_SESSION['channel'])?$_SESSION['channel']:"";      //渠道 iOS 为空
-            $log_data['versioncode'] = isset($_SESSION['versioncode'])?$_SESSION['versioncode']:'';    //版本号
-            #$log_data['input'] = $_GET['input'];    //加密参数
-            $get_log_datas = $this->logSave->getData($log_data);  //获取数据
-            $topic = "newSayu".CACHEIOSVER;         //__topic__
-            $source = getuser_realip(); //来源 ip
-            $this->logSave->save($topic,$source,$get_log_datas);   //写入日志
-        }
-        if(!@$_SESSION['isExport']){
-            dump("返回数据",$data);
-        }
-    }
-
     /**
      * 程序输出并结束
      * @param $data
+     * @throws JumpExitException
      */
     public function  ServerJson($data) {
         Http::header("Content-type: application/json");
-        $this->conn->send(json_encode($data));
-        $this->aliyunLog($data);
-        $this->end();
+        $ex = new JumpExitException('jump_exit');
+        $ex->data = json_encode($data);
+        throw $ex;
     }
 
-    public function ServerHtmlJson($data){
-        Http::header("Content-type: application/json");
-        Http::header('Access-Control-Allow-Methods: GET, POST, PUT,OPTIONS');
-        Http::header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
-        Http::header('Access-Control-Allow-Origin:*');
-        $this->conn->send(json_encode($data));
-        $this->end("true");
-    }
-
-    public function  ServerHtml($data){
+    public function  ServerHtml($data) {
         dump('ServerHtml',$data);
         $this->conn->send($data);
         $this->end("true");
     }
 
-    public function  Server404Html($data){
+    public function  Server404Html($data) {
         dump('Server404Html',$data);
         $this->conn->send($data);
     }
@@ -838,14 +784,17 @@ class App extends Worker
         Http::header($str);
     }
 
-    public function end($msg=''){
+    /**
+     * @param string $msg
+     * @throws JumpExitException
+     */
+    public function end($msg='') {
         if (PHP_SAPI != 'cli') {
             exit($msg);
         }
-        if ($msg) {
-            echo $msg;
-        }
-        throw new JumpExitException('jump_exit');
+        $ex = new JumpExitException('jump_exit');
+        $ex->data = $msg;
+        throw $ex;
     }
 
     public function Setcookie($name,$value = '',$maxage = 0,$path = '',$domain = '',$secure = false,$HTTPOnly = false){

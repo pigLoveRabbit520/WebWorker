@@ -9,5 +9,5 @@ namespace WebWorker\Exception;
 
 
 class JumpExitException extends \Exception {
-
+    public $data;
 }
