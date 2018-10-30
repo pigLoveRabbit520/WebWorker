@@ -377,14 +377,7 @@ class App extends Worker
 
 
             if (isset($contentLength)) {
-                $amountToRead = $contentLength;
-                while ($amountToRead > 0 && !$body->eof()) {
-                    $data = $body->read(min($chunkSize, $amountToRead));
-                    $connection->send($data);
-
-                    $amountToRead -= strlen($data);
-
-                }
+                $connection->send((string)$body);
             } else {
                 while (!$body->eof()) {
                     $connection->send($body->read($chunkSize));
