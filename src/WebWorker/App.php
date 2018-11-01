@@ -55,6 +55,13 @@ class App extends Worker
      */
     private $container;
 
+
+    /**
+     * last request for App invoke
+     * @var RequestInterface
+     */
+    private $lastInvokeRequest;
+
     /**
      * Enable access to the DI container by consumers of $app
      *
@@ -332,10 +339,7 @@ class App extends Worker
             $response = $this->handlePhpError($e, $request, $response);
         }
 
-        return [
-            $request,
-            $response,
-        ];
+        return $response;
     }
 
     /**
@@ -406,6 +410,7 @@ class App extends Worker
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $this->lastInvokeRequest = $request;
         // Get the route info
         $routeInfo = $request->getAttribute('routeInfo');
 
@@ -697,8 +702,7 @@ class App extends Worker
         $request = $this->container->get('request');
 
         try {
-            $procesRes = $this->process($request, $response);
-            $response = $procesRes[1];
+            $response = $this->process($request, $response);
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
         } finally {
@@ -723,7 +727,7 @@ class App extends Worker
         if ($this->container->offsetExists('requestEndCallback')) {
             $callback = $this->container->get('requestEndCallback');
             $callback = $callback->bindTo($this);
-            $callback($procesRes ? $procesRes[0] : $request, $response, $connection);
+            $callback($this->lastInvokeRequest, $response, $connection);
         }
         /////////////////////////////// slim runner end ///////////////////////////////
         // 已经处理请求数
