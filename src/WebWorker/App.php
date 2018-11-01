@@ -746,19 +746,14 @@ class App extends Worker
         }
     }
 
-    public function getAccessLog() {
-        return $this->access_log;
-    }
-
     /**
      * 程序输出并结束
      * @param $data
      * @throws JumpExitException
      */
     public function  ServerJson($data) {
-        Http::header("Content-type: application/json");
         $ex = new JumpExitException('jump_exit');
-        $ex->data = json_encode($data);
+        $ex->data = $data;
         throw $ex;
     }
 
@@ -779,10 +774,6 @@ class App extends Worker
      */
     public function ConnSendJson($data){
         $this->conn->send(json_encode($data));
-    }
-
-    public function Header($str){
-        Http::header($str);
     }
 
     /**
