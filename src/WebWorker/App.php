@@ -332,7 +332,10 @@ class App extends Worker
             $response = $this->handlePhpError($e, $request, $response);
         }
 
-        return $response;
+        return [
+            $request,
+            $response,
+        ];
     }
 
     /**
@@ -694,7 +697,8 @@ class App extends Worker
         $request = $this->container->get('request');
 
         try {
-            $response = $this->process($request, $response);
+            $procesRes = $this->process($request, $response);
+            $response = $procesRes[1];
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
         } finally {
@@ -719,7 +723,7 @@ class App extends Worker
         if ($this->container->offsetExists('requestEndCallback')) {
             $callback = $this->container->get('requestEndCallback');
             $callback = $callback->bindTo($this);
-            $callback($request, $response, $connection);
+            $callback($procesRes ? $procesRes[0] : $request, $response, $connection);
         }
         /////////////////////////////// slim runner end ///////////////////////////////
         // 已经处理请求数
