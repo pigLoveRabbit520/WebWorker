@@ -27,14 +27,6 @@ use WebWorker\Exception\JumpExitException;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 use Workerman\Protocols\Http;
-use Workerman\Protocols\HttpCache;
-use WebWorker\Libs\StatisticClient;
-
-function microtime_float()
-{
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
-}
 
 class App extends Worker
 {
@@ -661,38 +653,13 @@ class App extends Worker
         $this->container = $container;
     }
 
-    private function auto_close($conn) {
-        if ( strtolower($_SERVER["SERVER_PROTOCOL"]) == "http/1.1" ){
-            if ( isset($_SERVER["HTTP_CONNECTION"]) ){
-                if ( strtolower($_SERVER["HTTP_CONNECTION"]) == "close" ){
-                    $conn->close();
-                }
-            }
-        }else{
-            if ( $_SERVER["HTTP_CONNECTION"] == "keep-alive" ){
-
-            }else{
-                $conn->close();
-            }
-        }
-
-        if(!@$_SESSION['isExport']){
-
-        }
-    }
-
     public function setRequestEndCallback(\Closure $func) {
         $this->requestEndCallback = $func;
     }
 
 
     public function onClientMessage($connection, $data) {
-        if($_SERVER['REQUEST_METHOD'] == 'HEAD') {
-            echo "slb ";
-            $connection->close("Success");
-            return;
-        }
-        if ( $this->statistic_server ){
+        if ( $this->statistic_server ) {
             require_once __DIR__ . '/Libs/StatisticClient.php';
             $statistic_address = $this->statistic_server;
         }
@@ -734,16 +701,11 @@ class App extends Worker
         static $request_count = 0;
         // 如果请求数达到1000
         if( ++$request_count >= $this->max_request && $this->max_request > 0 ) {
-            echo "WorkerId: {$this->id};  Reboot !!!".PHP_EOL;
+            echo "WorkerId: {$this->id};  Reboot !!!" . PHP_EOL;
             Worker::stopAll();
         }
-        if(!@$_SESSION['isExport']) {
-            if (!file_exists(APP_ROOT . '/cache/tmp')) {
-                mkdir(APP_ROOT . '/cache/tmp', 0774, true);
-            }
-            echo implode(" - ",$this->access_log)."\n";
-            echo "WorkerId: {$this->id};  已经处理请求数:{$request_count}".PHP_EOL;
-        }
+
+        echo "WorkerId: {$this->id};  已经处理请求数:{$request_count}" . PHP_EOL;
     }
 
     /**
@@ -758,13 +720,11 @@ class App extends Worker
     }
 
     public function  ServerHtml($data) {
-        dump('ServerHtml',$data);
         $this->conn->send($data);
         $this->end("true");
     }
 
     public function  Server404Html($data) {
-        dump('Server404Html',$data);
         $this->conn->send($data);
     }
 
@@ -789,7 +749,7 @@ class App extends Worker
         throw $ex;
     }
 
-    public function Setcookie($name,$value = '',$maxage = 0,$path = '',$domain = '',$secure = false,$HTTPOnly = false){
+    public function Setcookie($name,$value = '',$maxage = 0,$path = '',$domain = '',$secure = false,$HTTPOnly = false) {
         Http::setcookie($name,$value,$maxage,$path,$domain,$secure,$HTTPOnly);
     }
 
@@ -802,7 +762,7 @@ class App extends Worker
 
 }
 
-function autoload_dir($dir_arr){
+function autoload_dir($dir_arr) {
     extract($GLOBALS);
     foreach($dir_arr as $dir ){
         foreach(glob($dir.'*.php') as $start_file)
